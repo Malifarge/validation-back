@@ -1,8 +1,10 @@
 const express = require('express')
 const app = express()
 const users = require('../users')
+const { body, validationResult } = require('express-validator')
 const {userIsexist} = require('../middleware/userexist')
 const {userNotexist} = require('../middleware/usernotexist')
+const validCity = require('../validCity')
 
 
 app.get('/', (req,res)=>{
@@ -13,10 +15,23 @@ app.get('/:slug',userIsexist,(req,res)=>{
     res.json(req.user)
 })
 
-app.post('/',userNotexist,(req,res)=>{
-    const {user} = req
-    users.push(user)
-    res.json(user)
+app.post('/',
+userNotexist,
+body('name').exists().isLength({ min: 4 }).withMessage('invalid name')
+,body('password').exists().isLength({min: 8}).withMessage('invalid password'),
+body('email').exists().isEmail().withMessage('invalid mail'),
+body('city').exists().isIn(validCity).withMessage('invalid city'),
+body('profile_picture').exists(),
+(req,res)=>{
+    const { errors } = validationResult(req)
+
+    if (errors.length > 0) {
+        res.status(400).json(errors)
+      } else {
+        const {user} = req
+        users.push(user)
+        res.json(user)
+      }
 })
 
 module.exports = app
