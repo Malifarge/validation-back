@@ -17,11 +17,11 @@ app.get('/:slug',userIsexist,(req,res)=>{
 
 app.post('/',
 userNotexist,
-body('name').isLength({ min: 4 }).withMessage('invalid name')
-,body('password').isLength({min: 8}).withMessage('invalid password'),
+body('name').isLength({ min: 4 }).withMessage('name too short')
+,body('password').isLength({min: 8}).withMessage('password too short'),
 body('email').isEmail().withMessage('invalid mail'),
 body('city').isIn(validCity).withMessage('invalid city'),
-body('profile_picture').exists(),
+body('profile_picture').exists().withMessage('missing picture'),
 (req,res)=>{
     const { errors } = validationResult(req)
 
